@@ -1,0 +1,8 @@
+# DialogType|Speaker|Text
+Narration||주인공은 아무와도 대화하지 않고 교실로 향한다.
+Main|A|…어, 주인공 오늘은 좀 조용하네.
+Sub|B|오늘은 나도 그냥 혼자 있어야겠다.
+
+# Choices|Text,NextFile,Important,AffectCharacter,AffectValue;Text,NextFile,Important,AffectCharacter,AffectValue
+잠깐 쉬자,C1_3_1,false,,
+교실로 바로 가자,C1_3_2,false,,

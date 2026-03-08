@@ -1,0 +1,12 @@
+# DialogType|Speaker|Text|Expression|Background
+
+Narration||오늘은 날씨가 좋고, 주인공은 학교에 가고 있다.||SchoolYard|false
+
+Main|이상|안녕, 오늘 기분 어때?|Happy|SchoolYard1|true
+
+Sub|B|주인공, 오늘 좀 바쁜가 봐요.|Neutral|SchoolYard|false
+
+# Choices
+A와 이야기하기,C1_1,true,A,5
+B와 이야기하기,C1_2,false,B,3
+그냥 지나가기,C1_3,true,,

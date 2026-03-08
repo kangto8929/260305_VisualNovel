@@ -1,0 +1,7 @@
+# DialogType|Speaker|Text
+Main|A|좋아, 같이 점심 먹으러 갈래?
+Narration||주인공은 A와 함께 점심을 먹는다.
+Sub|B|오늘은 나는 그냥 혼자 있어야겠다…
+
+# Choices|Text,NextFile,Important,AffectCharacter,AffectValue;Text,NextFile,Important,AffectCharacter,AffectValue
+응, 같이 먹자,C1_1_1,false,A,3;아니, 오늘은 혼자,C1_1_2,false,A,-1
