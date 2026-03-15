@@ -1,6 +1,11 @@
-using UnityEngine;
+
+// =====================================
+// StoryLoader
+// =====================================
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
+using UnityEngine;
 
 public class StoryLoader : MonoBehaviour
 {
@@ -9,10 +14,7 @@ public class StoryLoader : MonoBehaviour
     private Queue<DialogData> _dialogQueue;
     private List<ChoiceData> _currentChoices;
 
-    void Start()
-    {
-        LoadStory("C1_start");
-    }
+    void Start() => LoadStory("C1_start");
 
     public void LoadStory(string fileName)
     {
@@ -31,21 +33,19 @@ public class StoryLoader : MonoBehaviour
         for (int i = 0; i < lines.Length; i++)
         {
             string line = lines[i].Trim();
-            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#") && !line.StartsWith("# Choices")) continue;
+            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#") && !line.StartsWith("# Choices"))
+                continue;
 
-            // 선택지 블록 처리
             if (line.StartsWith("# Choices"))
             {
                 _currentChoices = new List<ChoiceData>();
-
-                // 선택지 여러 줄 읽기
                 for (int j = i + 1; j < lines.Length; j++)
                 {
                     string choiceLine = lines[j].Trim();
-                    if (string.IsNullOrWhiteSpace(choiceLine) || choiceLine.StartsWith("#")) break;
+                    if (string.IsNullOrWhiteSpace(choiceLine) || choiceLine.StartsWith("#"))
+                        break;
 
                     string[] cData = choiceLine.Split(',');
-
                     ChoiceData choice = new ChoiceData
                     {
                         Text = cData[0].Trim(),
@@ -54,45 +54,30 @@ public class StoryLoader : MonoBehaviour
                         AffectCharacter = cData.Length > 3 ? cData[3].Trim() : "",
                         AffectValue = 0
                     };
-
-                    // AffectValue 안전하게 처리
                     if (cData.Length > 4)
-                    {
-                        int.TryParse(cData[4].Trim(), out int result);
-                        choice.AffectValue = result;
-                    }
+                        int.TryParse(cData[4].Trim(), out choice.AffectValue);
 
                     _currentChoices.Add(choice);
                 }
-
-                continue; // 선택지 처리 후 다음 줄로
+                continue;
             }
 
-            // 대사 파싱
             string[] parts = line.Split('|');
             if (parts.Length < 3) continue;
 
             DialogType type = (DialogType)System.Enum.Parse(typeof(DialogType), parts[0]);
-            string speaker = parts[1].Trim();
-            string text = parts[2].Trim();
-            string expression = parts.Length > 3 ? parts[3].Trim() : "";
-            string background = parts.Length > 4 ? parts[4].Trim() : "";
-            bool showMain = parts.Length > 5 ? bool.Parse(parts[5].Trim()) : true;
-
             DialogData data = new DialogData
             {
                 Type = type,
-                Speaker = speaker,
-                Text = text,
-                Expression = expression,
-                Background = background,
-                ShowMainCharacter = showMain
+                Speaker = parts[1].Trim(),
+                Text = parts[2].Trim(),
+                Expression = parts.Length > 3 ? parts[3].Trim() : "",
+                Background = parts.Length > 4 ? parts[4].Trim() : "",
+                ShowMainCharacter = parts.Length > 5 ? bool.Parse(parts[5].Trim()) : true
             };
-
             _dialogQueue.Enqueue(data);
         }
 
-        // 첫 대사 또는 선택지 표시
         ShowNext();
     }
 
@@ -103,14 +88,20 @@ public class StoryLoader : MonoBehaviour
             DialogData data = _dialogQueue.Dequeue();
             DialogueManager.Instance.ShowDialogue(data);
         }
-        else if (_currentChoices.Count > 0)
+        else
+            CheckForChoices();
+    }
+
+    public void CheckForChoices()
+    {
+        if (_dialogQueue.Count == 0 && _currentChoices.Count > 0)
         {
             ChoiceManager.Instance.ShowChoices(_currentChoices);
-            _currentChoices.Clear(); // 선택지 표시 후 초기화
-        }
-        else
-        {
-            Debug.Log("Story Ended");
+            _currentChoices.Clear();
         }
     }
+
+    public bool HasChoicesAhead() => _currentChoices.Count > 0;
+    public bool HasNextDialogue() => _dialogQueue.Count > 0;
 }
+
