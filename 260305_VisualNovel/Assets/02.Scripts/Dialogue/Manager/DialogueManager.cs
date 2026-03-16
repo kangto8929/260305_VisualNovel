@@ -1,13 +1,8 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.UI;
-using System.IO;
 
-// =====================================
-// DialogueManager
-// =====================================
 public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance;
@@ -42,7 +37,11 @@ public class DialogueManager : MonoBehaviour
     [Header("Auto/Skip 설정")]
     public float AutoDelay = 1.5f;
 
+    [Header("Auto 버튼 이미지")]
+    public Image AutoButtonImage;
+
     Coroutine typingCoroutine;
+    Coroutine autoCoroutine;
 
     bool _isTyping;
     string _currentText;
@@ -51,11 +50,18 @@ public class DialogueManager : MonoBehaviour
     bool _autoMode = false;
     bool _skipMode = false;
 
+    string _currentMainCharacter = ""; // 현재 메인 캐릭터 이름 추적
+
     void Awake() => Instance = this;
 
+    // ─────────────────────────────────────
+    // 대사 표시
+    // ─────────────────────────────────────
     public void ShowDialogue(DialogData data)
     {
-        HideAll();
+        Narration.SetActive(false);
+        Dialogue.SetActive(false);
+        SubDialogue.SetActive(false);
 
         if (!string.IsNullOrEmpty(data.Background) && BackgroundManager != null)
             BackgroundManager.ChangeBackground(data.Background);
@@ -63,8 +69,24 @@ public class DialogueManager : MonoBehaviour
         if (MainCharacterManager != null)
         {
             MainCharacterManager.MainCharacterRenderer.gameObject.SetActive(data.ShowMainCharacter);
+
             if (data.ShowMainCharacter)
-                MainCharacterManager.SetCharacterSprite(data.Speaker, data.Expression);
+            {
+                if (data.Type == DialogType.Main)
+                {
+                    // 메인 캐릭터가 말할 때 → 이름 기억 + 표정 변경 + 밝게
+                    _currentMainCharacter = data.Speaker;
+                    MainCharacterManager.SetCharacterSprite(data.Speaker, data.Expression);
+                    MainCharacterManager.SetActive();
+                }
+                else
+                {
+                    // Narration/Sub → 기억해둔 메인 캐릭터 이름으로 표정 변경 + 어둡게
+                    if (!string.IsNullOrEmpty(data.MainExpression) && !string.IsNullOrEmpty(_currentMainCharacter))
+                        MainCharacterManager.SetCharacterSprite(_currentMainCharacter, data.MainExpression);
+                    MainCharacterManager.SetDim();
+                }
+            }
         }
 
         if (typingCoroutine != null)
@@ -94,14 +116,30 @@ public class DialogueManager : MonoBehaviour
         typingCoroutine = StartCoroutine(TypeText());
     }
 
+    // ─────────────────────────────────────
+    // 타이핑
+    // ─────────────────────────────────────
     IEnumerator TypeText()
     {
         _isTyping = true;
         _currentTarget.text = "";
 
-        foreach (char c in _currentText)
+        int i = 0;
+        while (i < _currentText.Length)
         {
-            _currentTarget.text += c;
+            if (_currentText[i] == '<')
+            {
+                int closeIndex = _currentText.IndexOf('>', i);
+                if (closeIndex != -1)
+                {
+                    _currentTarget.text += _currentText.Substring(i, closeIndex - i + 1);
+                    i = closeIndex + 1;
+                    continue;
+                }
+            }
+
+            _currentTarget.text += _currentText[i];
+            i++;
             yield return new WaitForSeconds(TypingSpeed);
         }
 
@@ -109,6 +147,9 @@ public class DialogueManager : MonoBehaviour
         storyLoader.CheckForChoices();
     }
 
+    // ─────────────────────────────────────
+    // 다음 버튼
+    // ─────────────────────────────────────
     public void OnClickNext()
     {
         if (_isTyping)
@@ -122,13 +163,29 @@ public class DialogueManager : MonoBehaviour
         storyLoader.ShowNext();
     }
 
+    // ─────────────────────────────────────
+    // Auto
+    // ─────────────────────────────────────
     public void ToggleAuto()
     {
         _autoMode = !_autoMode;
+        _skipMode = false;
+
+        if (AutoButtonImage != null)
+            AutoButtonImage.color = _autoMode ? Color.black : Color.white;
+
         if (_autoMode)
         {
-            _skipMode = false;
-            StartCoroutine(AutoPlay());
+            if (autoCoroutine != null) StopCoroutine(autoCoroutine);
+            autoCoroutine = StartCoroutine(AutoPlay());
+        }
+        else
+        {
+            if (autoCoroutine != null)
+            {
+                StopCoroutine(autoCoroutine);
+                autoCoroutine = null;
+            }
         }
     }
 
@@ -136,30 +193,62 @@ public class DialogueManager : MonoBehaviour
     {
         while (_autoMode)
         {
-            if (!_isTyping)
+            yield return new WaitUntil(() => !_isTyping);
+
+            if (ChoiceManager.Instance != null && ChoiceManager.Instance.IsChoiceVisible)
             {
-                yield return new WaitForSeconds(AutoDelay);
-                OnClickNext();
+                yield return new WaitUntil(() =>
+                    ChoiceManager.Instance == null || !ChoiceManager.Instance.IsChoiceVisible);
+                continue;
             }
-            yield return null;
+
+            if (!_autoMode) yield break;
+
+            yield return new WaitForSeconds(AutoDelay);
+
+            if (!_autoMode) yield break;
+
+            if (ChoiceManager.Instance != null && ChoiceManager.Instance.IsChoiceVisible) continue;
+            if (_isTyping) continue;
+
+            OnClickNext();
         }
     }
 
+    public void ResumeAutoIfActive()
+    {
+        if (_autoMode)
+        {
+            if (autoCoroutine != null) StopCoroutine(autoCoroutine);
+            autoCoroutine = StartCoroutine(AutoPlay());
+        }
+    }
+
+    // ─────────────────────────────────────
+    // Skip
+    // ─────────────────────────────────────
     public void ToggleSkip()
     {
         _skipMode = !_skipMode;
         _autoMode = false;
 
+        if (AutoButtonImage != null)
+            AutoButtonImage.color = Color.white;
+
+        if (autoCoroutine != null)
+        {
+            StopCoroutine(autoCoroutine);
+            autoCoroutine = null;
+        }
+
         if (_skipMode)
         {
-            // 현재 타이핑 중이면 즉시 끝내기
             if (_isTyping && typingCoroutine != null && _currentTarget != null)
             {
                 StopCoroutine(typingCoroutine);
                 _currentTarget.text = _currentText;
                 _isTyping = false;
             }
-
             StartCoroutine(SkipToChoice());
         }
     }
@@ -168,7 +257,6 @@ public class DialogueManager : MonoBehaviour
     {
         while (_skipMode)
         {
-            // 타이핑 중이면 즉시 끝내기
             if (_isTyping && typingCoroutine != null && _currentTarget != null)
             {
                 StopCoroutine(typingCoroutine);
@@ -176,14 +264,12 @@ public class DialogueManager : MonoBehaviour
                 _isTyping = false;
             }
 
-            //  순서 변경: 남은 대사가 있으면 먼저 소진
             if (storyLoader.HasNextDialogue())
             {
                 storyLoader.ShowNext();
             }
             else
             {
-                // 대사가 없을 때만 선택지 표시 후 종료
                 _skipMode = false;
                 storyLoader.CheckForChoices();
                 yield break;
@@ -193,16 +279,8 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public void StopAutoSkip()
+    public void StopSkip()
     {
-        _autoMode = false;
         _skipMode = false;
-    }
-
-    void HideAll()
-    {
-        Narration.SetActive(false);
-        Dialogue.SetActive(false);
-        SubDialogue.SetActive(false);
     }
 }

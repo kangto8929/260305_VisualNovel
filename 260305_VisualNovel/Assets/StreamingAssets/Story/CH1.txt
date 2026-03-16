@@ -1,0 +1,144 @@
+::S010
+Narration||오늘은 날씨가 좋고, {name:이/가} 학교에 가고 있다.||SchoolYard|false|
+Main|이상|{fname:아}, 안녕, 오늘 기분 어때?|Happy|SchoolYard1|true|
+Narration||이상이 먼저 말을 걸어왔다. 평소와 다름없는 얼굴이었다.||SchoolYard1|true|Happy
+Narration||왠지 오늘따라 기분이 좋아 보였다.||SchoolYard1|true|Smile
+Sub|B|{name} 님, 오늘 좀 바쁜가 봐요.|Neutral|SchoolYard1|true|Neutral
+Narration||뒤에서 B의 목소리가 들렸다. 이상이 살짝 돌아봤다.||SchoolYard1|true|Surprised
+Main|이상|어, B도 왔어?|Smile|SchoolYard1|true|
+Narration||둘이 아는 사이인 것 같았다.||SchoolYard|false|
+
+*choice
+A와 이야기하기,S110,true,이상,5
+B와 이야기하기,S210,false,B,3
+그냥 지나가기,S310,true,,0
+
+# ─────────────────────────────────────
+# A루트 (이상과 이야기하기)
+# ─────────────────────────────────────
+
+
+::S110
+Narration||이상과 함께 학교 복도를 걷기 시작했다.||SchoolYard1|false|
+Main|이상|<color=#BF0000>너</color> 요즘 뭐 하고 지내? 통 못 본 것 같아서.|Smile|SchoolYard1|true|
+Narration||어떻게 대답할까 <color=#FF6B6B>잠깐</color> 고민했다.||SchoolYard1|true|Smile
+
+*choice
+요즘 바빴어,S111,false,이상,-2
+그냥 별거 없었어,S112,false,,0
+너는 어때?,S113,true,이상,5
+
+::S111
+# 요즘 바빴어 선택
+Main|이상|그렇구나, 뭐가 그렇게 바빴는데?|Curious|SchoolYard1|true|
+Narration||딱히 설명하기가 애매했다.||SchoolYard1|true|Curious
+Main|이상|뭐, 힘들면 말해. 나 여기 있으니까.|Smile|SchoolYard1|true|
+Narration||이상의 말이 왠지 마음에 걸렸다.||SchoolYard1|true|Smile
+
+*choice
+사실 너 때문에 바빴어,S111A,true,이상,10
+고마워 근데 괜찮아,S111B,false,이상,3
+그냥 웃으며 넘겼다,S111C,false,,0
+
+::S111A
+# 사실 너 때문에 바빴어 선택 (이상 +10)
+Narration||말하고 나서 바로 후회했다.||SchoolYard1|true|Smile
+Main|이상|...나 때문에?|Surprised|SchoolYard1|true|
+Main|이상|그게 무슨 말이야, 좀 더 얘기해봐.|Curious|SchoolYard1|true|
+Narration||이상의 눈이 평소보다 진지했다.||SchoolYard1|true|Curious
+
+::S111B
+# 고마워 근데 괜찮아 선택 (이상 +3)
+Main|이상|괜찮다고 하는 사람치고 진짜 괜찮은 사람 없던데.|Neutral|SchoolYard1|true|
+Narration||틀린 말이 아니라서 반박할 수가 없었다.||SchoolYard1|true|Neutral
+Main|이상|뭐, 억지로 말 안 해도 돼. 그냥 알아는 둬.|Smile|SchoolYard1|true|
+Narration||이상은 더 캐묻지 않았다. 그게 오히려 더 마음에 걸렸다.||SchoolYard1|true|Smile
+
+::S111C
+# 그냥 웃으며 넘겼다 선택 (호감도 변화 없음)
+Narration||적당히 웃어넘겼지만 이상은 그냥 넘어가지 않았다.||SchoolYard1|true|Smile
+Main|이상|야, 그 웃음 나한테는 안 통해.|Smirk|SchoolYard1|true|
+Narration||이상과 눈이 마주쳤다. 뭔가 들킨 것 같은 기분이었다.||SchoolYard1|true|Smirk
+Main|이상|나중에라도 얘기하고 싶으면 연락해.|Serious|SchoolYard1|true|
+
+::S112
+# 그냥 별거 없었어 선택
+Main|이상|별거 없긴. 너 요즘 표정이 좀 어두워 보이던데.|Worried|SchoolYard1|true|
+Narration||생각보다 눈치가 빠른 것 같아서 당황했다.||SchoolYard1|true|Worried
+Main|이상|뭔가 있으면 말해줘도 되는데.|Neutral|SchoolYard1|true|
+Narration||할 말이 있었지만 쉽게 입이 떨어지지 않았다.||SchoolYard1|true|Neutral
+
+*choice
+사실 좀 힘들었어,S112A,true,이상,8
+그냥 잠을 못 잔 것뿐이야,S112B,false,이상,2
+신경 쓰지 마,S112C,false,,0
+
+::S112A
+# 사실 좀 힘들었어 선택 (이상 +8)
+Narration||솔직하게 말하고 나니 오히려 가슴이 좀 가벼워졌다.||SchoolYard1|true|Neutral
+Main|이상|그랬구나. 말해줘서 고마워.|Serious|SchoolYard1|true|
+Main|이상|혼자 끌어안고 있으면 더 힘들어. 알지?|Worried|SchoolYard1|true|
+Narration||이상이 천천히 옆에 나란히 걸었다. 말은 없었지만 싫지 않았다.||SchoolYard1|true|Serious
+
+::S112B
+# 그냥 잠을 못 잔 것뿐이야 선택 (이상 +2)
+Main|이상|잠을 못 잔 것치고는 좀 심각해 보이는데.|Smirk|SchoolYard1|true|
+Narration||이상은 믿지 않는 눈치였다.||SchoolYard1|true|Smirk
+Main|이상|뭐, 네가 말하기 싫으면 안 물어볼게. 근데 나 여기 있어.|Neutral|SchoolYard1|true|
+Narration||괜히 미안해졌다.||SchoolYard1|true|Neutral
+
+::S112C
+# 신경 쓰지 마 선택 (호감도 변화 없음)
+Narration||차갑게 말하려던 건 아닌데 그렇게 들렸을 것 같았다.||SchoolYard1|true|Neutral
+Main|이상|...알겠어.|Neutral|SchoolYard1|true|
+Narration||이상이 더 이상 말을 걸지 않았다. 복도가 갑자기 조용해진 것 같았다.||SchoolYard1|true|Neutral
+Narration||괜히 그랬나 싶었다.||SchoolYard|false|
+
+::S113
+# 너는 어때? 선택
+Main|이상|나? 나는 뭐... 그냥저냥.|Shy|SchoolYard1|true|
+Narration||말끝을 흐리는 게 평소와 달라 보였다.||SchoolYard1|true|Shy
+Main|이상|사실 요즘 좀 생각할 게 많아서.|Serious|SchoolYard1|true|
+Main|이상|근데 네가 물어봐줘서 좋다.|Smile|SchoolYard1|true|
+Narration||이상이 웃었다. 왠지 오늘따라 그 웃음이 신경 쓰였다.||SchoolYard1|true|Smile
+
+*choice
+무슨 생각인데?,S113A,true,이상,10
+많이 힘들어?,S113B,true,이상,7
+그렇구나,S113C,false,이상,2
+
+::S113A
+# 무슨 생각인데? 선택 (이상 +10)
+Main|이상|어, 그게...|Shy|SchoolYard1|true|
+Narration||이상이 말을 고르는 것 같았다. 평소엔 말이 빠른 편인데.||SchoolYard1|true|Shy
+Main|이상|나중에 말해도 돼?|Serious|SchoolYard1|true|
+Narration||거절할 이유가 없었다. 오히려 더 궁금해졌다.||SchoolYard1|true|Serious
+Main|이상|고마워. 진짜로.|Smile|SchoolYard1|true|
+
+::S113B
+# 많이 힘들어? 선택 (이상 +7)
+Main|이상|힘들다기보다는... 모르겠어. 복잡한 거지.|Neutral|SchoolYard1|true|
+Narration||이상답지 않은 대답이었다. 평소엔 뭐든 명확하게 말하는 편인데.||SchoolYard1|true|Neutral
+Main|이상|너는 이럴 때 어떻게 해?|Curious|SchoolYard1|true|
+Narration||나한테 물어보는 게 의외였다.||SchoolYard1|true|Curious
+
+::S113C
+# 그렇구나 선택 (이상 +2)
+Main|이상|...반응이 그게 다야?|Smirk|SchoolYard1|true|
+Narration||웃고 있었지만 조금 서운해 보이기도 했다.||SchoolYard1|true|Smirk
+Main|이상|뭐, 됐어. 별거 아니니까.|Neutral|SchoolYard1|true|
+Narration||별거 아니라는 말이 오히려 마음에 걸렸다.||SchoolYard1|true|Neutral
+
+# ─────────────────────────────────────
+# B루트 (B와 이야기하기)
+# ─────────────────────────────────────
+
+::S210
+# 미작성
+
+# ─────────────────────────────────────
+# 지나가기 루트 (그냥 지나가기)
+# ─────────────────────────────────────
+
+::S310
+# 미작성

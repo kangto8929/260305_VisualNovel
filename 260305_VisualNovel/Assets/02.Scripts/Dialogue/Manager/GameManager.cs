@@ -1,16 +1,32 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    public string PlayerName = "";
+    public string PlayerLastName = "";
+    public string PlayerFirstName = "";
+
     private Dictionary<string, int> _affection = new Dictionary<string, int>();
 
     void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+            Destroy(gameObject);
+    }
+
+    public void SetPlayerName(string lastName, string firstName)
+    {
+        PlayerFirstName = firstName;
+        PlayerLastName = lastName; 
+        PlayerName = lastName + firstName; 
     }
 
     public void AddAffection(string character, int value)
@@ -18,9 +34,12 @@ public class GameManager : MonoBehaviour
         if (!_affection.ContainsKey(character))
             _affection[character] = 0;
 
+        int before = _affection[character];
         _affection[character] += value;
+        int after = _affection[character];
 
-        UnityEngine.Debug.Log($"{character} 호감도 변화: {_affection[character]}");
+        string sign = value >= 0 ? "+" : "";
+        Debug.Log($"[호감도] {character} | {before} → {after} ({sign}{value})");
     }
 
     public int GetAffection(string character)

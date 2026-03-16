@@ -1,6 +1,3 @@
-// =====================================
-// ChoiceManager
-// =====================================
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -16,13 +13,19 @@ public class ChoiceManager : MonoBehaviour
     public GameObject ImportantButtonPrefab;
 
     private List<GameObject> _activeButtons = new List<GameObject>();
+    private bool _isShowingChoices = false;
+
+    public bool IsChoiceVisible => _isShowingChoices;
 
     void Awake() => Instance = this;
 
     public void ShowChoices(List<ChoiceData> choices)
     {
-        DialogueManager.Instance.StopAutoSkip();
+        // Skip만 중단, Auto는 유지
+        DialogueManager.Instance.StopSkip();
+
         ClearChoices();
+        _isShowingChoices = true;
 
         foreach (var choice in choices)
         {
@@ -38,11 +41,8 @@ public class ChoiceManager : MonoBehaviour
             var button = buttonObj.GetComponent<Button>();
             ChoiceData capturedChoice = choice;
             button.onClick.AddListener(() => OnChoiceSelected(capturedChoice));
-
             _activeButtons.Add(buttonObj);
         }
-
-        ChoiceLayer.SetActive(true);
     }
 
     private void OnChoiceSelected(ChoiceData choice)
@@ -50,18 +50,18 @@ public class ChoiceManager : MonoBehaviour
         if (!string.IsNullOrEmpty(choice.AffectCharacter))
             GameManager.Instance.AddAffection(choice.AffectCharacter, choice.AffectValue);
 
-        StoryLoader loader = FindObjectOfType<StoryLoader>();
-        loader.LoadStory(choice.NextFile);
-
         ClearChoices();
+        StoryLoader.Instance.OnChoiceSelected(choice);
+
+        // Auto 상태였으면 재개
+        DialogueManager.Instance.ResumeAutoIfActive();
     }
 
     public void ClearChoices()
     {
         foreach (var btn in _activeButtons)
             Destroy(btn);
-
         _activeButtons.Clear();
-        ChoiceLayer.SetActive(false);
+        _isShowingChoices = false;
     }
 }
