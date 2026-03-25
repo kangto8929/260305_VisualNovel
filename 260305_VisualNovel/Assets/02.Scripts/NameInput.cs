@@ -29,7 +29,7 @@ public class NameInput : MonoBehaviour
         else
             FinalFirstName = FirstNameInput.text;
 
-        PopupNameText.text = FinalLastName + FinalFirstName + "\n이 이름으로 시작할까요?";
+        PopupNameText.text = FinalLastName + FinalFirstName;
         ConfirmPopup.SetActive(true);
     }
 
