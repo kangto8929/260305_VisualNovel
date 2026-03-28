@@ -11,13 +11,15 @@ public class GameManager : MonoBehaviour
 
     private Dictionary<string, int> _affection = new Dictionary<string, int>();
 
-    private HashSet<string> _hiddenCharacters = new HashSet<string>();
+    private Dictionary<string, string> _hiddenCharacters = new Dictionary<string, string>();
     private HashSet<string> _revealedCharacters = new HashSet<string>();
 
-    public void HideCharacter(string character)
+    // character: 실제 캐릭터 키값 (예: "이상")
+    // customName: reveal 전 표시될 이름 (예: "라임머리색 남자")
+    public void HideCharacter(string character, string customName)
     {
-        _hiddenCharacters.Add(character);
-        Debug.Log($"[이름 숨김] {character}");
+        _hiddenCharacters[character] = customName;
+        Debug.Log($"[이름 숨김] {character} → {customName}");
     }
 
     public void RevealCharacter(string character)
@@ -29,8 +31,8 @@ public class GameManager : MonoBehaviour
     // 모든 캐릭터 이름 표시 여부를 여기서 통합 처리
     public string GetDisplayName(string character)
     {
-        if (_hiddenCharacters.Contains(character) && !_revealedCharacters.Contains(character))
-            return "???";
+        if (_hiddenCharacters.ContainsKey(character) && !_revealedCharacters.Contains(character))
+            return _hiddenCharacters[character]; // "라임머리색 남자" 등
         return character;
     }
 

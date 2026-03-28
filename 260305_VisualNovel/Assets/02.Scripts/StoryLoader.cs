@@ -124,20 +124,29 @@ public class StoryLoader : MonoBehaviour
 
             if (line == "*choice") { inChoice = true; continue; }
 
-            // *hide: 이름 숨김
+            // ─────────────────────────────────────
+            // *hide 이상|라임머리색 남자
+            // "|커스텀이름" 없으면 기본값 "???"
+            // ─────────────────────────────────────
             if (line.StartsWith("*hide "))
             {
-                string character = line.Substring("*hide ".Length).Trim();
+                string content = line.Substring("*hide ".Length).Trim();
+                string[] hideParts = content.Split('|');
+                string character = hideParts[0].Trim();
+                string customName = hideParts.Length > 1 ? hideParts[1].Trim() : "???";
+
                 currentDialogs.Add(new DialogData
                 {
                     Type = DialogType.Narration,
                     Speaker = "__hide__",
-                    Text = character
+                    Text = character + "|" + customName  // "이상|라임머리색 남자"
                 });
                 continue;
             }
 
-            // *reveal: 이름 공개
+            // ─────────────────────────────────────
+            // *reveal 이상
+            // ─────────────────────────────────────
             if (line.StartsWith("*reveal "))
             {
                 string character = line.Substring("*reveal ".Length).Trim();
@@ -173,11 +182,7 @@ public class StoryLoader : MonoBehaviour
 
                 string type = parts[0].Trim();
 
-                if (type == "NameChange")
-                {
-                    // NameChange는 현재 미사용이지만 구조 유지
-                    continue;
-                }
+                if (type == "NameChange") continue; // 현재 미사용, 구조 유지
 
                 if (parts.Length < 3) continue;
 
@@ -243,7 +248,10 @@ public class StoryLoader : MonoBehaviour
         // 이름 숨김 커맨드
         if (next.Speaker == "__hide__")
         {
-            GameManager.Instance.HideCharacter(next.Text);
+            string[] parts = next.Text.Split('|');
+            string character = parts[0];
+            string customName = parts.Length > 1 ? parts[1] : "???";
+            GameManager.Instance.HideCharacter(character, customName);
             ShowNext();
             return;
         }
@@ -275,6 +283,9 @@ public class StoryLoader : MonoBehaviour
     public bool HasNextDialogue() => _dialogQueue.Count > 0;
 }
 
+// ─────────────────────────────────────
+// 노드 데이터
+// ─────────────────────────────────────
 public class NodeData
 {
     public List<DialogData> Dialogs;

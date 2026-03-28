@@ -16,16 +16,17 @@
 # ═══════════════════════════════════════════════════════════
 
 ::S010
-*hide 이상
-Narration||오늘은 날씨가 좋고, {name:이/가} 학교에 가고 있다.||SchoolYard|false|
+*hide 이상|라임머리 남자
+Narration||오늘은 날씨가 좋고, {fname:이/가} 학교에 가고 있다.||SchoolYard|false|
 Main|이상|{fname:아}, 안녕, 오늘 기분 어때?|Happy|SchoolYard1|true|
 *reveal 이상
 Narration||{char:이상}이 먼저 말을 걸어왔다. 평소와 다름없는 얼굴이었다.||SchoolYard1|true|Happy
 Narration||왠지 오늘따라 기분이 좋아 보였다.||SchoolYard1|true|Smile
-Sub|B|{name} 님, 오늘 좀 바쁜가 봐요.|Neutral|SchoolYard1|true|Neutral
-Narration||뒤에서 B의 목소리가 들렸다. {char:이상}이 살짝 돌아봤다.||SchoolYard1|true|Surprised
+Main|지혜|{fname:아}, 안녕!!!!|Happy|SchoolYard1|true|
+Sub|B|{name} 님, 오늘 좀 바쁜가 봐요.|Neutral|SchoolYard1|false|Neutral
+Narration||뒤에서 B의 목소리가 들렸다. {char:이상}이 살짝 돌아봤다.||SchoolYard1|false|Surprised
 Main|이상|어, B도 왔어?|Smile|SchoolYard1|true|
-Narration||둘이 아는 사이인 것 같았다.||SchoolYard|false|
+Narration||둘이 아는 사이인 것 같았다.||SchoolYard|true|
 *choice
 A와 이야기하기,S110,true,이상,5
 B와 이야기하기,S210,false,B,3
