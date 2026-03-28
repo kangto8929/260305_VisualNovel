@@ -5,10 +5,11 @@ public class MainCharacterManager : MonoBehaviour
 {
     public SpriteRenderer MainCharacterRenderer;
     public List<MainCharacter> Characters;
+
     private Dictionary<string, Dictionary<string, Sprite>> _characterDict;
 
-    private static readonly Color ActiveColor = new Color(1f, 1f, 1f, 1f);           // #FFFFFF
-    private static readonly Color DimColor = new Color(0.69f, 0.69f, 0.69f, 1f);  // #B0B0B0
+    private static readonly Color ActiveColor = new Color(1f, 1f, 1f, 1f);
+    private static readonly Color DimColor = new Color(0.69f, 0.69f, 0.69f, 1f);
 
     void Awake()
     {

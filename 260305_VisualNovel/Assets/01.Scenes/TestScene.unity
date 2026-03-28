@@ -2148,8 +2148,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uADF8\uB7EC\uB2C8 \uC545\uB9C8\uAC00 \uB124\uAC8C \uC18D\uC0AD\uC778\uB2E4\uBA74,
-    \uD55C \uCE58 \uB9DD\uC124\uC784 \uC5C6\uC774 \uC3F4\uB77C."
+  m_text: "\uBBF8\uC548\uD574\uC694. \uC88B\uC740 \uC18C\uC2DD\uC744 \uC804\uD574\uC8FC\uC9C0
+    \uBABB\uD574\uC11C..."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6ccef5be11b70544390a00b0d5fca48a, type: 2}
   m_sharedMaterial: {fileID: -2055026850360522703, guid: 6ccef5be11b70544390a00b0d5fca48a, type: 2}
@@ -3781,7 +3781,7 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1080, y: 1920}
-  m_ScreenMatchMode: 0
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 0.71
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -4192,7 +4192,7 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1080, y: 1920}
-  m_ScreenMatchMode: 0
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -4316,7 +4316,7 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1080, y: 1920}
-  m_ScreenMatchMode: 0
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 0.3
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -5242,7 +5242,7 @@ Transform:
   m_GameObject: {fileID: 1089472749}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.942, z: 0}
+  m_LocalPosition: {x: 0, y: -2.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5292,12 +5292,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 5972258011784732601, guid: d7406f8f0a2831145a8648e168af1566, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d7406f8f0a2831145a8648e168af1566, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 5.85, y: 14.22}
+  m_Size: {x: 6.108296, y: 12.91}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -6106,7 +6106,7 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1080, y: 1920}
-  m_ScreenMatchMode: 0
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -8465,13 +8465,17 @@ MonoBehaviour:
   - CharacterName: "\uC774\uC0C1"
     Expressions:
     - Expression: Happy
-      Portrait: {fileID: 5972258011784732601, guid: d7406f8f0a2831145a8648e168af1566, type: 3}
+      Portrait: {fileID: 21300000, guid: d7406f8f0a2831145a8648e168af1566, type: 3}
     - Expression: Smile
-      Portrait: {fileID: 5972258011784732601, guid: d7406f8f0a2831145a8648e168af1566, type: 3}
+      Portrait: {fileID: 21300000, guid: d7406f8f0a2831145a8648e168af1566, type: 3}
     - Expression: Neutral
-      Portrait: {fileID: 5972258011784732601, guid: d7406f8f0a2831145a8648e168af1566, type: 3}
+      Portrait: {fileID: 21300000, guid: d7406f8f0a2831145a8648e168af1566, type: 3}
     - Expression: Surprised
-      Portrait: {fileID: 5972258011784732601, guid: d7406f8f0a2831145a8648e168af1566, type: 3}
+      Portrait: {fileID: 21300000, guid: d7406f8f0a2831145a8648e168af1566, type: 3}
+  - CharacterName: "\uC9C0\uD61C"
+    Expressions:
+    - Expression: Happy
+      Portrait: {fileID: -3948422830038141218, guid: 7344d5365a4823d4c86568fb0da1b43f, type: 3}
 --- !u!1 &2047809325
 GameObject:
   m_ObjectHideFlags: 0
@@ -8938,11 +8942,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1877088357076327117, guid: 2b746248bbd595d4b97ea70b70fa71cf, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 512.91406
+      value: 540
       objectReference: {fileID: 0}
     - target: {fileID: 1877088357076327117, guid: 2b746248bbd595d4b97ea70b70fa71cf, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -1008.0088
+      value: -1126.0966
       objectReference: {fileID: 0}
     - target: {fileID: 1877088357076327117, guid: 2b746248bbd595d4b97ea70b70fa71cf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -9062,11 +9066,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7937143212162889530, guid: a9ec5b1f4b1ab944a8c061d65f5028e7, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 512.91406
+      value: 540
       objectReference: {fileID: 0}
     - target: {fileID: 7937143212162889530, guid: a9ec5b1f4b1ab944a8c061d65f5028e7, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -1156.9478
+      value: -1275.0355
       objectReference: {fileID: 0}
     - target: {fileID: 7937143212162889530, guid: a9ec5b1f4b1ab944a8c061d65f5028e7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

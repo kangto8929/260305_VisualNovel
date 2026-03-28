@@ -50,9 +50,20 @@ public class DialogueManager : MonoBehaviour
     bool _autoMode = false;
     bool _skipMode = false;
 
-    string _currentMainCharacter = ""; // 현재 메인 캐릭터 이름 추적
+    string _currentMainCharacter = "";
 
     void Awake() => Instance = this;
+
+    // ─────────────────────────────────────
+    // 이름 표시: GameManager 하나로 통합
+    // Main이든 Sub이든 동일하게 처리
+    // ─────────────────────────────────────
+    private string GetDisplayName(string speaker)
+    {
+        if (GameManager.Instance != null)
+            return GameManager.Instance.GetDisplayName(speaker);
+        return speaker;
+    }
 
     // ─────────────────────────────────────
     // 대사 표시
@@ -74,14 +85,12 @@ public class DialogueManager : MonoBehaviour
             {
                 if (data.Type == DialogType.Main)
                 {
-                    // 메인 캐릭터가 말할 때 → 이름 기억 + 표정 변경 + 밝게
                     _currentMainCharacter = data.Speaker;
                     MainCharacterManager.SetCharacterSprite(data.Speaker, data.Expression);
                     MainCharacterManager.SetActive();
                 }
                 else
                 {
-                    // Narration/Sub → 기억해둔 메인 캐릭터 이름으로 표정 변경 + 어둡게
                     if (!string.IsNullOrEmpty(data.MainExpression) && !string.IsNullOrEmpty(_currentMainCharacter))
                         MainCharacterManager.SetCharacterSprite(_currentMainCharacter, data.MainExpression);
                     MainCharacterManager.SetDim();
@@ -98,14 +107,16 @@ public class DialogueManager : MonoBehaviour
                 Narration.SetActive(true);
                 _currentTarget = NarrationText;
                 break;
+
             case DialogType.Main:
                 Dialogue.SetActive(true);
-                NameText.text = data.Speaker;
+                NameText.text = GetDisplayName(data.Speaker);
                 _currentTarget = DialogueText;
                 break;
+
             case DialogType.Sub:
                 SubDialogue.SetActive(true);
-                SubNameText.text = data.Speaker;
+                SubNameText.text = GetDisplayName(data.Speaker);
                 _currentTarget = SubDialogueText;
                 if (SubCharacterManager != null)
                     SubCharacterManager.ShowSubCharacter(data.Speaker);
@@ -137,7 +148,6 @@ public class DialogueManager : MonoBehaviour
                     continue;
                 }
             }
-
             _currentTarget.text += _currentText[i];
             i++;
             yield return new WaitForSeconds(TypingSpeed);
@@ -181,11 +191,7 @@ public class DialogueManager : MonoBehaviour
         }
         else
         {
-            if (autoCoroutine != null)
-            {
-                StopCoroutine(autoCoroutine);
-                autoCoroutine = null;
-            }
+            if (autoCoroutine != null) { StopCoroutine(autoCoroutine); autoCoroutine = null; }
         }
     }
 
@@ -203,12 +209,8 @@ public class DialogueManager : MonoBehaviour
             }
 
             if (!_autoMode) yield break;
-
             yield return new WaitForSeconds(AutoDelay);
-
             if (!_autoMode) yield break;
-
-            if (ChoiceManager.Instance != null && ChoiceManager.Instance.IsChoiceVisible) continue;
             if (_isTyping) continue;
 
             OnClickNext();
@@ -232,25 +234,10 @@ public class DialogueManager : MonoBehaviour
         _skipMode = !_skipMode;
         _autoMode = false;
 
-        if (AutoButtonImage != null)
-            AutoButtonImage.color = Color.white;
+        if (AutoButtonImage != null) AutoButtonImage.color = Color.white;
+        if (autoCoroutine != null) { StopCoroutine(autoCoroutine); autoCoroutine = null; }
 
-        if (autoCoroutine != null)
-        {
-            StopCoroutine(autoCoroutine);
-            autoCoroutine = null;
-        }
-
-        if (_skipMode)
-        {
-            if (_isTyping && typingCoroutine != null && _currentTarget != null)
-            {
-                StopCoroutine(typingCoroutine);
-                _currentTarget.text = _currentText;
-                _isTyping = false;
-            }
-            StartCoroutine(SkipToChoice());
-        }
+        if (_skipMode) StartCoroutine(SkipToChoice());
     }
 
     IEnumerator SkipToChoice()
@@ -265,9 +252,7 @@ public class DialogueManager : MonoBehaviour
             }
 
             if (storyLoader.HasNextDialogue())
-            {
                 storyLoader.ShowNext();
-            }
             else
             {
                 _skipMode = false;
@@ -279,8 +264,5 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public void StopSkip()
-    {
-        _skipMode = false;
-    }
+    public void StopSkip() { _skipMode = false; }
 }

@@ -18,18 +18,17 @@ public class StoryLoader : MonoBehaviour
     void Start()
     {
         _storyFolder = Path.Combine(Application.streamingAssetsPath, "Story");
-        // 스토리 시작은 NameInput.ConfirmFinalName()에서 호출
     }
 
     // ─────────────────────────────────────
-    // 조사 처리
+    // {name}, {fname} 치환 (파싱 시점)
+    // {char:이름} 은 원본 보존 → 출력 직전 ProcessCharTag() 처리
     // ─────────────────────────────────────
-    private string ProcessJosa(string text)
+    private string ProcessJosaExceptChar(string text)
     {
         string fullName = GameManager.Instance != null ? GameManager.Instance.PlayerName : "주인공";
         string firstName = GameManager.Instance != null ? GameManager.Instance.PlayerFirstName : "주인공";
 
-        // 풀네임 (성+이름) - {name}
         text = text.Replace("{name}", fullName);
         text = text.Replace("{name:아}", fullName + KoreanJosa.Ah(fullName));
         text = text.Replace("{name:이}", fullName + KoreanJosa.Ee(fullName));
@@ -45,7 +44,6 @@ public class StoryLoader : MonoBehaviour
         text = text.Replace("{name:이 오빠}", fullName + KoreanJosa.Oppa(fullName));
         text = text.Replace("{name:이/가}", fullName + KoreanJosa.Iga(fullName));
 
-        // 이름만 (성 제외) - {fname}
         text = text.Replace("{fname}", firstName);
         text = text.Replace("{fname:아}", firstName + KoreanJosa.Ah(firstName));
         text = text.Replace("{fname:이}", firstName + KoreanJosa.Ee(firstName));
@@ -65,7 +63,26 @@ public class StoryLoader : MonoBehaviour
     }
 
     // ─────────────────────────────────────
-    // 챕터 파일 전체 파싱
+    // {char:캐릭터명} 치환 (출력 직전)
+    // GameManager.GetDisplayName() 으로 통합 처리
+    // ─────────────────────────────────────
+    private string ProcessCharTag(string text)
+    {
+        return System.Text.RegularExpressions.Regex.Replace(
+            text,
+            @"\{char:([^}]+)\}",
+            match =>
+            {
+                string charName = match.Groups[1].Value;
+                return GameManager.Instance != null
+                    ? GameManager.Instance.GetDisplayName(charName)
+                    : charName;
+            }
+        );
+    }
+
+    // ─────────────────────────────────────
+    // 챕터 파일 파싱
     // ─────────────────────────────────────
     public void LoadChapter(string chapterName)
     {
@@ -89,9 +106,7 @@ public class StoryLoader : MonoBehaviour
         foreach (string rawLine in lines)
         {
             string line = rawLine.Trim();
-
-            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
-                continue;
+            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
 
             if (line.StartsWith("::"))
             {
@@ -107,9 +122,31 @@ public class StoryLoader : MonoBehaviour
 
             if (currentNodeId == null) continue;
 
-            if (line == "*choice")
+            if (line == "*choice") { inChoice = true; continue; }
+
+            // *hide: 이름 숨김
+            if (line.StartsWith("*hide "))
             {
-                inChoice = true;
+                string character = line.Substring("*hide ".Length).Trim();
+                currentDialogs.Add(new DialogData
+                {
+                    Type = DialogType.Narration,
+                    Speaker = "__hide__",
+                    Text = character
+                });
+                continue;
+            }
+
+            // *reveal: 이름 공개
+            if (line.StartsWith("*reveal "))
+            {
+                string character = line.Substring("*reveal ".Length).Trim();
+                currentDialogs.Add(new DialogData
+                {
+                    Type = DialogType.Narration,
+                    Speaker = "__reveal__",
+                    Text = character
+                });
                 continue;
             }
 
@@ -120,7 +157,7 @@ public class StoryLoader : MonoBehaviour
 
                 ChoiceData choice = new ChoiceData
                 {
-                    Text = ProcessJosa(c[0].Trim()),
+                    Text = ProcessJosaExceptChar(c[0].Trim()),
                     NextNode = c[1].Trim(),
                     Important = c.Length > 2 && c[2].Trim().ToLower() == "true",
                     AffectCharacter = c.Length > 3 ? c[3].Trim() : "",
@@ -132,13 +169,23 @@ public class StoryLoader : MonoBehaviour
             else
             {
                 string[] parts = line.Split('|');
+                if (parts.Length < 1) continue;
+
+                string type = parts[0].Trim();
+
+                if (type == "NameChange")
+                {
+                    // NameChange는 현재 미사용이지만 구조 유지
+                    continue;
+                }
+
                 if (parts.Length < 3) continue;
 
                 DialogData data = new DialogData
                 {
-                    Type = (DialogType)System.Enum.Parse(typeof(DialogType), parts[0].Trim()),
+                    Type = (DialogType)System.Enum.Parse(typeof(DialogType), type),
                     Speaker = parts[1].Trim(),
-                    Text = ProcessJosa(parts[2].Trim()),
+                    Text = ProcessJosaExceptChar(parts[2].Trim()),
                     Expression = parts.Length > 3 ? parts[3].Trim() : "",
                     Background = parts.Length > 4 ? parts[4].Trim() : "",
                     ShowMainCharacter = parts.Length > 5 ? bool.Parse(parts[5].Trim()) : true,
@@ -154,18 +201,12 @@ public class StoryLoader : MonoBehaviour
         Debug.Log($"[StoryLoader] {chapterName} 로드 완료 - 노드 수: {_nodes.Count}");
     }
 
-    // ─────────────────────────────────────
-    // 챕터 로드 + 노드 점프
-    // ─────────────────────────────────────
     public void LoadChapterAndJump(string chapterName, string nodeId)
     {
         LoadChapter(chapterName);
         JumpToNode(nodeId);
     }
 
-    // ─────────────────────────────────────
-    // 같은 챕터 내 노드 점프
-    // ─────────────────────────────────────
     public void JumpToNode(string nodeId)
     {
         if (!_nodes.ContainsKey(nodeId))
@@ -181,33 +222,44 @@ public class StoryLoader : MonoBehaviour
         ShowNext();
     }
 
-    // ─────────────────────────────────────
-    // 선택지 선택 후 이동
-    // ─────────────────────────────────────
     public void OnChoiceSelected(ChoiceData choice)
     {
         string next = choice.NextNode;
-
         if (next.Contains("::"))
         {
             string[] split = next.Split(new string[] { "::" }, System.StringSplitOptions.None);
             LoadChapterAndJump(split[0].Trim(), split[1].Trim());
         }
         else
-        {
             JumpToNode(next);
-        }
     }
 
-    // ─────────────────────────────────────
-    // 기존 인터페이스 유지
-    // ─────────────────────────────────────
     public void ShowNext()
     {
-        if (_dialogQueue.Count > 0)
-            DialogueManager.Instance.ShowDialogue(_dialogQueue.Dequeue());
-        else
-            CheckForChoices();
+        if (_dialogQueue.Count == 0) { CheckForChoices(); return; }
+
+        DialogData next = _dialogQueue.Dequeue();
+
+        // 이름 숨김 커맨드
+        if (next.Speaker == "__hide__")
+        {
+            GameManager.Instance.HideCharacter(next.Text);
+            ShowNext();
+            return;
+        }
+
+        // 이름 공개 커맨드
+        if (next.Speaker == "__reveal__")
+        {
+            GameManager.Instance.RevealCharacter(next.Text);
+            ShowNext();
+            return;
+        }
+
+        // {char:이름} 태그 치환 (출력 직전)
+        next.Text = ProcessCharTag(next.Text);
+
+        DialogueManager.Instance.ShowDialogue(next);
     }
 
     public void CheckForChoices()
@@ -223,9 +275,6 @@ public class StoryLoader : MonoBehaviour
     public bool HasNextDialogue() => _dialogQueue.Count > 0;
 }
 
-// ─────────────────────────────────────
-// 노드 데이터
-// ─────────────────────────────────────
 public class NodeData
 {
     public List<DialogData> Dialogs;
